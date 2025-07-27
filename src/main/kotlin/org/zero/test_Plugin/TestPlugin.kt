@@ -63,4 +63,10 @@ class TestPlugin : JavaPlugin(), Listener {
             return true
         }
     }
+
+    class TestPlugin : JavaPlugin() {
+        override fun onEnable() {
+            getCommand("spawn")?.setExecutor(TeleportToSpawnCommand())
+        }
+    }
 }
