@@ -2,3 +2,7 @@ name: Test_Plugin
 version: '1.0-SNAPSHOT'
 main: org.zero.test_Plugin.Test_Plugin
 api-version: '1.21'
+commands:
+  spawn:
+    description: Teleport to your spawn point
+    usage: /spawn

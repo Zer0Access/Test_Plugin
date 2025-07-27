@@ -1,5 +1,6 @@
 package org.zero.test_Plugin
 
+import org.bukkit.Location
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -8,9 +9,13 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.entity.EntityResurrectEvent
+import org.bukkit.command.Command
+import org.bukkit.command.CommandExecutor
+import org.bukkit.command.CommandSender
 import kotlin.concurrent.thread
 
-class Test_Plugin : JavaPlugin(), Listener {
+
+class TestPlugin : JavaPlugin(), Listener {
 
     override fun onEnable() {
         // Plugin startup logic
@@ -40,6 +45,22 @@ class Test_Plugin : JavaPlugin(), Listener {
                 Thread.sleep(5000) // Wait for 5 seconds
                 player.walkSpeed = 0.2f // Resets walk speed to normal
             }
+        }
+    }
+
+
+
+    class TeleportToSpawnCommand : CommandExecutor {
+        override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
+            if (sender is Player) {
+                val player = sender
+                val spawnLocation: Location = player.location
+                player.teleport(spawnLocation)
+                player.sendMessage("Teleported to your spawn point.")
+            } else {
+                sender.sendMessage("Only players can use this command.")
+            }
+            return true
         }
     }
 }
