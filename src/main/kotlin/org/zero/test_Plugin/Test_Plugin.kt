@@ -34,7 +34,7 @@ class Test_Plugin : JavaPlugin(), Listener {
     fun onUseTotem(event: EntityResurrectEvent) {
     if (event.entity is Player) {
         val player = event.entity as Player
-        player.walkSpeed = 0.4f // Reset walk speed
+        player.walkSpeed = 0.2f // Reset walk speed
     }
     }
 }
