@@ -1,14 +1,31 @@
 package org.zero.test_Plugin
 
+import org.bukkit.Sound
+import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.event.player.PlayerJoinEvent
 
-class Test_Plugin : JavaPlugin() {
+class Test_Plugin : JavaPlugin(), Listener {
 
     override fun onEnable() {
         // Plugin startup logic
+        server.pluginManager.registerEvents(this,this)
     }
 
-    override fun onDisable() {
-        // Plugin shutdown logic
+    @EventHandler
+    fun onPlayerJoin(event: PlayerJoinEvent) {
+        val player = event.player
+        player.sendMessage("Welcome to the server, ${player.name}!")
+    }
+
+    @EventHandler
+    fun onEntityDamage(event: EntityDamageEvent) {
+        if (event.entity is Player) {
+            val player = event.entity as Player
+            player.playSound(player.location, Sound.ENTITY_RAVAGER_ROAR, 1f, 1f)
+        }
     }
 }
