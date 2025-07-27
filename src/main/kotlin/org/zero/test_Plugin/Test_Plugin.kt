@@ -7,6 +7,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.entity.EntityResurrectEvent
 
 class Test_Plugin : JavaPlugin(), Listener {
 
@@ -27,5 +28,13 @@ class Test_Plugin : JavaPlugin(), Listener {
             val player = event.entity as Player
             player.playSound(player.location, Sound.BLOCK_BELL_USE, 1f, 1f)
         }
+    }
+
+    @EventHandler
+    fun onUseTotem(event: EntityResurrectEvent) {
+    if (event.entity is Player) {
+        val player = event.entity as Player
+        player.walkSpeed = 0.4f // Reset walk speed
+    }
     }
 }
