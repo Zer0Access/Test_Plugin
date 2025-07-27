@@ -25,7 +25,7 @@ class Test_Plugin : JavaPlugin(), Listener {
     fun onEntityDamage(event: EntityDamageEvent) {
         if (event.entity is Player) {
             val player = event.entity as Player
-            player.playSound(player.location, Sound.ENTITY_RAVAGER_ROAR, 1f, 1f)
+            player.playSound(player.location, Sound.BLOCK_BELL_USE, 1f, 1f)
         }
     }
 }
