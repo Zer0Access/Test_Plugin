@@ -58,7 +58,7 @@ class TestPlugin : JavaPlugin(), Listener {
                 player.sendMessage("You must wait before using the ability again!")
                 return
             }
-            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 5000))
+            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 30_000))
             player.playSound(player.location, Sound.BLOCK_BEACON_ACTIVATE, org.bukkit.SoundCategory.AMBIENT, 1f, 1f)
             player.addPotionEffect(org.bukkit.potion.PotionEffect(
                 org.bukkit.potion.PotionEffectType.STRENGTH,
