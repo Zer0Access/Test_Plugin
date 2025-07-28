@@ -8,6 +8,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.entity.EntityResurrectEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import kotlin.concurrent.thread
 
 
@@ -41,6 +42,30 @@ class TestPlugin : JavaPlugin(), Listener {
                 Thread.sleep(5000) // Wait for 5 seconds
                 player.walkSpeed = 0.2f // Resets walk speed to normal
             }
+        }
+    }
+
+    @EventHandler
+    fun onUseSword(event: PlayerInteractEvent) {
+        val player = event.player
+        val cooldownKey = "SwordCooldown"
+        val cooldown = player.getMetadata(cooldownKey).firstOrNull()?.asLong() ?: 0L
+        val now = System.currentTimeMillis()
+        // Only apply effect when right-clicking (use), not left-clicking (attack)
+        if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") &&
+            event.item?.type?.name == "NETHERITE_SWORD") {
+            if (now < cooldown) {
+                player.sendMessage("You must wait before using the ability again!")
+                return
+            }
+            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 5000))
+            player.playSound(player.location, Sound.BLOCK_BEACON_ACTIVATE, org.bukkit.SoundCategory.AMBIENT, 1f, 1f)
+            player.addPotionEffect(org.bukkit.potion.PotionEffect(
+                org.bukkit.potion.PotionEffectType.STRENGTH,
+                100, // Duration in ticks (5 seconds)
+                4 // Amplifier (0 = lvl1)
+            ))
+            player.sendMessage("You feel a power from deep within!")
         }
     }
 }
