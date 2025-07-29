@@ -46,14 +46,21 @@ class TestPlugin : JavaPlugin(), Listener {
     }
 
     @EventHandler
-    fun onUseSword(event: PlayerInteractEvent) {
+    fun onUseCustomSword(event: PlayerInteractEvent) {
         val player = event.player
         val cooldownKey = "SwordCooldown"
         val cooldown = player.getMetadata(cooldownKey).firstOrNull()?.asLong() ?: 0L
         val now = System.currentTimeMillis()
         // Only apply effect when right-clicking (use), not left-clicking (attack)
-        if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") &&
-            event.item?.type?.name == "NETHERITE_SWORD") {
+        if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") && event.item?.type?.name == "NETHERITE_SWORD" &&
+            event.item?.itemMeta?.let { meta ->
+                meta.hasDisplayName() && meta.displayName() == net.kyori.adventure.text.Component.text()
+                    .content("Custom Sword")
+                    .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
+                    .decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC)
+                    .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
+                    .build()
+            } == true) {
             if (now < cooldown) {
                 player.sendMessage("You must wait before using the ability again!")
                 return
