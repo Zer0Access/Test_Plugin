@@ -5,10 +5,11 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.util.Vector
 import kotlin.concurrent.thread
 
 
@@ -74,5 +75,22 @@ class TestPlugin : JavaPlugin(), Listener {
             ))
             player.sendMessage("You feel a power from deep within!")
         }
+    }
+
+    @EventHandler
+    fun onBoost(event: PlayerInteractEvent) {
+        if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") && event.item?.type?.name == "BREEZE_ROD" &&
+            event.item?.itemMeta?.let { meta ->
+                meta.hasDisplayName() && meta.displayName() == net.kyori.adventure.text.Component.text()
+                    .content("Staff of the Wind")
+                    .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
+                    .decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC)
+                    .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
+                    .build()
+            } == true) {
+        val player = event.player
+        val v: Vector = player.location.direction.multiply(1.25) // Boosts player in the direction they are looking
+        player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f)
+        player.velocity = v}
     }
 }
