@@ -87,10 +87,12 @@ class TestPlugin : JavaPlugin(), Listener {
                     .decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC)
                     .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
                     .build()
-            } == true) {
-        val player = event.player
-        val v: Vector = player.location.direction.multiply(1.25) // Boosts player in the direction they are looking
-        player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f)
-        player.velocity = v}
+            } == true
+        ) {
+            val player = event.player
+            val v: Vector = player.location.direction.multiply(1.25) // Boosts player in the direction they are looking
+            player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f)
+            player.velocity = v
+        }
     }
 }
