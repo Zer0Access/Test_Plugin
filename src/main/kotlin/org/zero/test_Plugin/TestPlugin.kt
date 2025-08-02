@@ -4,10 +4,13 @@ import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.inventory.ItemType
+import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.util.Vector
 import kotlin.concurrent.thread
@@ -27,10 +30,10 @@ class TestPlugin : JavaPlugin(), Listener {
     }
 
     @EventHandler
-    fun onEntityDamage(event: EntityDamageEvent) {
+    fun onEntityDeath(event: EntityDeathEvent) {
         if (event.entity is Player) {
             val player = event.entity as Player
-            player.playSound(player.location, Sound.BLOCK_BELL_USE, 1f, 1f)
+            player.playSound(player.location, Sound.ITEM_MACE_SMASH_GROUND_HEAVY, 1f, 1f)
         }
     }
 
@@ -61,25 +64,28 @@ class TestPlugin : JavaPlugin(), Listener {
                     .decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC)
                     .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
                     .build()
-            } == true) {
+            } == true
+        ) {
             if (now < cooldown) {
                 player.sendMessage("You must wait before using the ability again!")
                 return
             }
             player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 30_000))
             player.playSound(player.location, Sound.BLOCK_BEACON_ACTIVATE, org.bukkit.SoundCategory.AMBIENT, 1f, 1f)
-            player.addPotionEffect(org.bukkit.potion.PotionEffect(
-                org.bukkit.potion.PotionEffectType.STRENGTH,
-                100, // Duration in ticks (5 seconds)
-                4 // Amplifier (0 = lvl1)
-            ))
+            player.addPotionEffect(
+                org.bukkit.potion.PotionEffect(
+                    org.bukkit.potion.PotionEffectType.STRENGTH,
+                    300, // Duration in ticks (15 seconds)
+                    1 // Amplifier (0 = lvl1)
+                )
+            )
             player.sendMessage("You feel a power from deep within!")
         }
     }
 
     @EventHandler
     fun onBoost(event: PlayerInteractEvent) {
-        if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") && event.item?.type?.name == "BREEZE_ROD" &&
+        if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") && event.player.inventory.itemInMainHand.type == org.bukkit.Material.BREEZE_ROD &&
             event.item?.itemMeta?.let { meta ->
                 meta.hasDisplayName() && meta.displayName() == net.kyori.adventure.text.Component.text()
                     .content("Staff of the Wind")
