@@ -85,7 +85,7 @@ class TestPlugin : JavaPlugin(), Listener {
 
     @EventHandler
     fun onBoost(event: PlayerInteractEvent) {
-        if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") && event.player.inventory.itemInMainHand.type == org.bukkit.Material.BREEZE_ROD &&
+        if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") && event.player.inventory.itemInMainHand.type == org.bukkit.Material.STICK &&
             event.item?.itemMeta?.let { meta ->
                 meta.hasDisplayName() && meta.displayName() == net.kyori.adventure.text.Component.text()
                     .content("Staff of the Wind")
