@@ -42,6 +42,13 @@ class TestPlugin : JavaPlugin(), Listener {
         if (event.entity is Player) {
             val player = event.entity as Player
             player.walkSpeed = 0.4f // Doubles walk speed
+            player.addPotionEffect(
+                org.bukkit.potion.PotionEffect(
+                    org.bukkit.potion.PotionEffectType.JUMP_BOOST,
+                    100, // Duration in ticks (5 seconds)
+                    1 // Amplifier (0 = lvl1)
+                )
+            )
             thread(start = true) {
                 Thread.sleep(5000) // Wait for 5 seconds
                 player.walkSpeed = 0.2f // Resets walk speed to normal
