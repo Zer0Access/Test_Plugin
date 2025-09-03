@@ -127,7 +127,6 @@ class TestPlugin : JavaPlugin(), Listener {
                     .build()
             ) {
                 player.walkSpeed = 0.4f // Increases walk speed when wearing the boots
-                player.playSound(player.location, Sound.BLOCK_BEACON_ACTIVATE, 0.1f, 1f)
                 return
             }
         }
