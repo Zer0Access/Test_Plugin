@@ -1,6 +1,8 @@
 package org.zero.test_Plugin
 
 import org.bukkit.Sound
+import org.bukkit.attribute.Attribute
+import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -9,10 +11,12 @@ import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemType
 import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.util.Vector
+import sun.font.EAttribute
 import kotlin.concurrent.thread
 
 
@@ -107,5 +111,25 @@ class TestPlugin : JavaPlugin(), Listener {
             player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f)
             player.velocity = v
         }
+    }
+
+    @EventHandler
+    fun onSpeedBoots(event: PlayerMoveEvent) {
+        val player: Player = event.player
+        val boots = player.inventory.boots
+        if (boots != null && boots.type == org.bukkit.Material.LEATHER_BOOTS) {
+            val meta = boots.itemMeta
+            if (meta is LeatherArmorMeta && meta.hasDisplayName() && meta.displayName() == net.kyori.adventure.text.Component.text()
+                    .content("Boots of Swiftness")
+                    .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
+                    .decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC)
+                    .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
+                    .build()
+            ) {
+                player.walkSpeed = 0.3f // Increases walk speed when wearing the boots
+                return
+            }
+        }
+        player.walkSpeed = 0.2f // Resets walk speed to normal if boots are taken off or not the custom item
     }
 }
