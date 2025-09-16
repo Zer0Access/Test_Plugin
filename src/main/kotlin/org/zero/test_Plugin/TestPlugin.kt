@@ -113,6 +113,16 @@ class TestPlugin : JavaPlugin(), Listener {
         }
     }
 
+    fun getRGBFromColor(color: Color): Triple<Double, Double, Double> {
+        var red: Double = color.red.toDouble()/255.0f
+        var green: Double = color.green.toDouble()/255.0f
+        var blue: Double = color.blue.toDouble()/255.0f
+        red = String.format("%.2f", red).toDouble()
+        green = String.format("%.2f", green).toDouble()
+        blue = String.format("%.2f", blue).toDouble()
+        return Triple(red, green, blue)
+    }
+
     @EventHandler
     fun onSpeedBoots(event: PlayerMoveEvent) {
         val player: Player = event.player
