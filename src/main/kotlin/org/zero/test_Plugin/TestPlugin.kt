@@ -1,5 +1,8 @@
 package org.zero.test_Plugin
 
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
+import io.papermc.paper.datacomponent.item.DyedItemColor
+import org.bukkit.Color
 import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
@@ -44,18 +47,25 @@ class TestPlugin : JavaPlugin(), Listener {
     @EventHandler
     fun onUseTotem(event: EntityResurrectEvent) {
         if (event.entity is Player) {
-            val player = event.entity as Player
+            val player: Player = event.entity as Player
+            player.sendMessage ("Your totem of undying has activated!")
             player.walkSpeed = 0.4f // Doubles walk speed
-            player.addPotionEffect(
+            var success = player.addPotionEffect(
                 org.bukkit.potion.PotionEffect(
                     org.bukkit.potion.PotionEffectType.JUMP_BOOST,
-                    100, // Duration in ticks (5 seconds)
-                    1 // Amplifier (0 = lvl1)
+                    300, // Duration in ticks (15 seconds)
+                    0, // Amplifier (0 = lvl1)
+                    true, // Ambient
+                    true, // Shows particles
+                    false // Shows icon
                 )
+
             )
+            println("Potion effect applied: $success")
             thread(start = true) {
                 Thread.sleep(5000) // Wait for 5 seconds
                 player.walkSpeed = 0.2f // Resets walk speed to normal
+                player.sendMessage ("Your boost of swiftness has worn off.")
             }
         }
     }
@@ -124,22 +134,39 @@ class TestPlugin : JavaPlugin(), Listener {
     }
 
     @EventHandler
-    fun onSpeedBoots(event: PlayerMoveEvent) {
+    fun onEquippmentChange(event: PlayerArmorChangeEvent) {
         val player: Player = event.player
-        val boots = player.inventory.boots
-        if (boots != null && boots.type == org.bukkit.Material.LEATHER_BOOTS) {
-            val meta = boots.itemMeta
-            if (meta is LeatherArmorMeta && meta.hasDisplayName() && meta.displayName() == net.kyori.adventure.text.Component.text()
-                    .content("Boots of Swiftness")
-                    .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
-                    .decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC)
-                    .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
-                    .build()
-            ) {
-                player.walkSpeed = 0.4f // Increases walk speed when wearing the boots
-                return
+        val newItem = event.newItem
+        if (event.slot == EquipmentSlot.FEET) {
+            if (newItem.type == org.bukkit.Material.LEATHER_BOOTS){
+                val meta = newItem.itemMeta as LeatherArmorMeta
+                val (r,g,b) = getRGBFromColor(meta.color)
+                player.sendMessage("Color RGB: ${getRGBFromColor(meta.color)}")
+                if ((r == 1.0 && g == 1.0 && b == 1.0) && meta.hasDisplayName() && meta.displayName() == net.kyori.adventure.text.Component.text()
+                        .content("Boots of Swiftness")
+                        .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
+                        .decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC)
+                        .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
+                        .build()
+                ) {
+                    player.walkSpeed = 0.4f // Increases walk speed when wearing the boots
+                    return
+                }
+                if ((r == 0.0 && g == 0.0 && b == 0.0) && meta.hasDisplayName() && meta.displayName() == net.kyori.adventure.text.Component.text()
+                        .content("Boots of Slowness")
+                        .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
+                        .decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC)
+                        .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
+                        .build()
+                ) {
+                    player.walkSpeed = 0.1f // Increases walk speed when wearing the boots
+                    player.sendMessage("Slowed")
+                    return
+                }
+            } else {
+                player.sendMessage("Reset speed")
+                player.walkSpeed = 0.2f // Resets walk speed to normal if boots are taken off or not the custom item
             }
         }
-        player.walkSpeed = 0.2f // Resets walk speed to normal if boots are taken off or not the custom item
     }
 }
