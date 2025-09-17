@@ -19,7 +19,6 @@ import org.bukkit.inventory.ItemType
 import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.util.Vector
-import sun.font.EAttribute
 import kotlin.concurrent.thread
 
 
@@ -50,22 +49,10 @@ class TestPlugin : JavaPlugin(), Listener {
             val player: Player = event.entity as Player
             player.sendMessage ("Your totem of undying has activated!")
             player.walkSpeed = 0.4f // Doubles walk speed
-            var success = player.addPotionEffect(
-                org.bukkit.potion.PotionEffect(
-                    org.bukkit.potion.PotionEffectType.JUMP_BOOST,
-                    300, // Duration in ticks (15 seconds)
-                    0, // Amplifier (0 = lvl1)
-                    true, // Ambient
-                    true, // Shows particles
-                    false // Shows icon
-                )
-
-            )
-            println("Potion effect applied: $success")
             thread(start = true) {
                 Thread.sleep(5000) // Wait for 5 seconds
                 player.walkSpeed = 0.2f // Resets walk speed to normal
-                player.sendMessage ("Your boost of swiftness has worn off.")
+                player.sendMessage ("Your spell of speed has expired.")
             }
         }
     }
@@ -159,12 +146,15 @@ class TestPlugin : JavaPlugin(), Listener {
                         .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
                         .build()
                 ) {
-                    player.walkSpeed = 0.1f // Increases walk speed when wearing the boots
+                    player.walkSpeed = 0.15f // Increases walk speed when wearing the boots
+                    player.maxHealth = 40.0 // Sets max health to 3 hearts
                     player.sendMessage("Slowed")
                     return
                 }
             } else {
                 player.sendMessage("Reset speed")
+                player.health = player.health.coerceAtMost(20.0) // Ensures current health does not exceed normal max health
+                player.maxHealth = 20.0 // Resets max health to normal if boots are taken off or not the custom item
                 player.walkSpeed = 0.2f // Resets walk speed to normal if boots are taken off or not the custom item
             }
         }
