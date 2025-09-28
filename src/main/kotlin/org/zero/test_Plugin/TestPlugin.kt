@@ -2,6 +2,7 @@ package org.zero.test_Plugin
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
 import io.papermc.paper.datacomponent.item.DyedItemColor
+import io.papermc.paper.registry.keys.ItemTypeKeys
 import org.bukkit.Color
 import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
@@ -14,8 +15,11 @@ import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.inventory.CraftingInventory
+import org.bukkit.inventory.CraftingRecipe
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemType
+import org.bukkit.inventory.Recipe
 import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.util.Vector
@@ -93,16 +97,24 @@ class TestPlugin : JavaPlugin(), Listener {
 
     @EventHandler
     fun onBoost(event: PlayerInteractEvent) {
-        if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") && event.player.inventory.itemInMainHand.type == org.bukkit.Material.STICK &&
+        val player = event.player
+        val cooldownKey = "SOTWCooldown"
+        val cooldown = player.getMetadata(cooldownKey).firstOrNull()?.asLong()?: 0L
+        val now = System.currentTimeMillis()
+        if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") && event.player.inventory.itemInMainHand.type == org.bukkit.Material.ECHO_SHARD &&
             event.item?.itemMeta?.let { meta ->
-                meta.hasDisplayName() && meta.displayName() == net.kyori.adventure.text.Component.text()
+                meta.hasItemName() && meta.itemName() == net.kyori.adventure.text.Component.text()
                     .content("Staff of the Wind")
                     .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
-                    .decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC)
                     .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
                     .build()
             } == true
         ) {
+            if (now < cooldown) {
+                player.sendMessage("Staff is recharging!")
+                return
+            }
+            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 500))
             val player = event.player
             val v: Vector = player.location.direction.multiply(1.25) // Boosts player in the direction they are looking
             player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f)
