@@ -238,7 +238,6 @@ class TestPlugin : JavaPlugin(), Listener {
                     .build()
             } == true
         ) {
-// Give 64 of the block's natural drop for any block type
             val drops = block.getDrops(player.inventory.itemInMainHand)
             if (drops.isNotEmpty()) {
                 drops.forEach { drop ->
