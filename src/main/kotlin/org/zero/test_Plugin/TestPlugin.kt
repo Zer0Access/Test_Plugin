@@ -242,9 +242,9 @@ class TestPlugin : JavaPlugin(), Listener {
             val drops = block.getDrops(player.inventory.itemInMainHand)
             if (drops.isNotEmpty()) {
                 drops.forEach { drop ->
-                    val stack = drop.clone()
-                    stack.amount = 64
-                    block.location.world?.dropItemNaturally(block.location.add(0.5, 0.5, 0.5), stack)
+                    val dropA = drop.clone()
+                    dropA.amount = 64
+                    block.location.world?.dropItemNaturally(block.location.add(0.5, 0.5, 0.5), dropA)
                 }
                 event.isDropItems = false // Prevents normal drops
                 player.sendActionBar(net.kyori.adventure.text.Component
