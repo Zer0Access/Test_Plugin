@@ -182,4 +182,34 @@ class TestPlugin : JavaPlugin(), Listener {
             }
         }
     }
+
+    @EventHandler
+    fun onCustomMine(event: BlockBreakEvent) {
+        val player = event.player
+        val block = event.block
+        if (player.inventory.itemInMainHand.type == org.bukkit.Material.NETHERITE_PICKAXE &&
+            player.inventory.itemInMainHand.itemMeta?.let { meta ->
+                meta.hasItemName() && meta.itemName() == net.kyori.adventure.text.Component.text()
+                    .content("Pickaxe of Efficiency")
+                    .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
+                    .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
+                    .build()
+            } == true
+        ) {
+// Give 64 of the block's natural drop for any block type
+            val drops = block.getDrops(player.inventory.itemInMainHand)
+            if (drops.isNotEmpty()) {
+                drops.forEach { drop ->
+                    val stack = drop.clone()
+                    stack.amount = 64
+                    block.location.world?.dropItemNaturally(block.location.add(0.5, 0.5, 0.5), stack)
+                }
+                event.isDropItems = false // Prevents normal drops
+                player.sendActionBar(net.kyori.adventure.text.Component
+                    .text("${player.name} mined a ${block.type.name} and received 64x ${drops.first().type.name}!")
+                    .color(NamedTextColor.GREEN)
+                    .decorate(TextDecoration.BOLD))
+            }
+        }
+    }
 }
