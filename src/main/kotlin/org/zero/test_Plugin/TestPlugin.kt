@@ -104,6 +104,47 @@ class TestPlugin : JavaPlugin(), Listener {
     }
 
     @EventHandler
+    fun onUseSpeedSword(event: PlayerInteractEvent) {
+        val player = event.player
+        val cooldownKey = "SwordCooldown"
+        val cooldown = player.getMetadata(cooldownKey).firstOrNull()?.asLong() ?: 0L
+        val now = System.currentTimeMillis()
+        // Only apply effect when right-clicking (use), not left-clicking (attack)
+        if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") && event.item?.type?.name == "NETHERITE_SWORD" &&
+            event.item?.itemMeta?.let { meta ->
+                meta.hasItemName() && meta.itemName() == net.kyori.adventure.text.Component.text()
+                    .content("Sword of Swiftness")
+                    .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
+                    .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
+                    .build()
+            } == true
+        ) {
+            if (now < cooldown) {
+                player.sendActionBar(net.kyori.adventure.text.Component
+                    .text("You must wait before using the ability again!")
+                    .color(NamedTextColor.DARK_RED)
+                    .decorate(TextDecoration.BOLD))
+                return
+            }
+            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 30_000))
+            player.playSound(player.location, Sound.BLOCK_BEACON_ACTIVATE, org.bukkit.SoundCategory.AMBIENT, 1f, 1f)
+            player.walkSpeed = 0.4f // Doubles walk speed
+            thread(start = true) {
+                Thread.sleep(15000) // Wait for 15 seconds
+                player.walkSpeed = 0.2f // Resets walk speed to normal
+                player.sendActionBar(net.kyori.adventure.text.Component
+                    .text("The power from within fades.")
+                    .color(NamedTextColor.DARK_PURPLE)
+                    .decorate(TextDecoration.BOLD))
+            }
+            player.sendActionBar(net.kyori.adventure.text.Component
+                .text("You feel a power from deep within!")
+                .color(NamedTextColor.GOLD)
+                .decorate(TextDecoration.BOLD))
+        }
+    }
+
+    @EventHandler
     fun onBoost(event: PlayerInteractEvent) {
         val player = event.player
         val cooldownKey = "SOTWCooldown"
