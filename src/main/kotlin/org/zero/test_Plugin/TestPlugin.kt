@@ -6,12 +6,14 @@ import io.papermc.paper.registry.keys.ItemTypeKeys
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Color
+import org.bukkit.Server
 import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.player.PlayerInteractEvent
@@ -75,7 +77,6 @@ class TestPlugin : JavaPlugin(), Listener {
                 meta.hasItemName() && meta.itemName() == net.kyori.adventure.text.Component.text()
                     .content("Sword of Strength")
                     .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
-                    .decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC)
                     .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
                     .build()
             } == true
