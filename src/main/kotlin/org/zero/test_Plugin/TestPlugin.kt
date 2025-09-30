@@ -72,8 +72,8 @@ class TestPlugin : JavaPlugin(), Listener {
         // Only apply effect when right-clicking (use), not left-clicking (attack)
         if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") && event.item?.type?.name == "NETHERITE_SWORD" &&
             event.item?.itemMeta?.let { meta ->
-                meta.hasDisplayName() && meta.displayName() == net.kyori.adventure.text.Component.text()
-                    .content("Custom Sword")
+                meta.hasItemName() && meta.itemName() == net.kyori.adventure.text.Component.text()
+                    .content("Sword of Strength")
                     .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
                     .decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC)
                     .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
