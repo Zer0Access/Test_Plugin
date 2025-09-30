@@ -3,6 +3,8 @@ package org.zero.test_Plugin
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
 import io.papermc.paper.datacomponent.item.DyedItemColor
 import io.papermc.paper.registry.keys.ItemTypeKeys
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Color
 import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
@@ -79,7 +81,10 @@ class TestPlugin : JavaPlugin(), Listener {
             } == true
         ) {
             if (now < cooldown) {
-                player.sendMessage("You must wait before using the ability again!")
+                player.sendActionBar(net.kyori.adventure.text.Component
+                    .text("You must wait before using the ability again!")
+                    .color(NamedTextColor.DARK_RED)
+                    .decorate(TextDecoration.BOLD))
                 return
             }
             player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 30_000))
@@ -91,7 +96,10 @@ class TestPlugin : JavaPlugin(), Listener {
                     1 // Amplifier (0 = lvl1)
                 )
             )
-            player.sendMessage("You feel a power from deep within!")
+            player.sendActionBar(net.kyori.adventure.text.Component
+                .text("You feel a power from deep within!")
+                .color(NamedTextColor.GOLD)
+                .decorate(TextDecoration.BOLD))
         }
     }
 
@@ -111,7 +119,10 @@ class TestPlugin : JavaPlugin(), Listener {
             } == true
         ) {
             if (now < cooldown) {
-                player.sendMessage("Staff is recharging!")
+                player.sendActionBar(net.kyori.adventure.text.Component
+                    .text("You must wait before using the ability again!")
+                    .color(NamedTextColor.DARK_RED)
+                    .decorate(TextDecoration.BOLD))
                 return
             }
             player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 500))
