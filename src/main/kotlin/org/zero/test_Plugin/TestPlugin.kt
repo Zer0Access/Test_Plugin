@@ -64,7 +64,7 @@ class TestPlugin : JavaPlugin(), Listener {
     }
 
     @EventHandler
-    fun onUseCustomSword(event: PlayerInteractEvent) {
+    fun onUseStrengthSword(event: PlayerInteractEvent) {
         val player = event.player
         val cooldownKey = "SwordCooldown"
         val cooldown = player.getMetadata(cooldownKey).firstOrNull()?.asLong() ?: 0L
