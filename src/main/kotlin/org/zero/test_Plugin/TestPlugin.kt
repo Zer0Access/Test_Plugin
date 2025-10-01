@@ -265,4 +265,51 @@ class TestPlugin : JavaPlugin(), Listener {
             }
         }
     }
+
+    @EventHandler
+    fun onCustomMineTest(event: PlayerInteractEvent) {
+        val player = event.player
+        val block = event.clickedBlock ?: return
+        val cooldownKey = "PickaxeCooldownTest"
+        val cooldown = player.getMetadata(cooldownKey).firstOrNull()?.asLong() ?: 0L
+        val now = System.currentTimeMillis()
+        if (now < cooldown) {
+            player.sendActionBar(net.kyori.adventure.text.Component
+                .text("Ability not for Creative")
+                .color(NamedTextColor.DARK_RED)
+                .decorate(TextDecoration.BOLD))
+            return
+        }
+        if ((event.action.name == "RIGHT_CLICK_BLOCK") &&
+            player.inventory.itemInMainHand.type == org.bukkit.Material.NETHERITE_PICKAXE &&
+            player.inventory.itemInMainHand.itemMeta?.let { meta ->
+                meta.hasItemName() && meta.itemName() == net.kyori.adventure.text.Component.text()
+                    .content("Pickaxe of Efficiency Test")
+                    .decorate(net.kyori.adventure.text.format.TextDecoration.BOLD)
+                    .color(net.kyori.adventure.text.format.NamedTextColor.GOLD)
+                    .build()
+            } == true
+        ) {
+            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 1_000))
+            val drops = block.getDrops(player.inventory.itemInMainHand)
+            fun onPickUseAbility(event: BlockBreakEvent) {}
+            if (player.gameMode.name != "CREATIVE") {
+                player.damageItemStack(player.inventory.itemInMainHand, 50)
+                if (drops.isNotEmpty()) {
+                    drops.forEach { drop ->
+                        val dropA = drop.clone()
+                        dropA.amount = 16
+                        block.location.world?.dropItemNaturally(block.location.add(0.5, 0.5, 0.5), dropA)
+                    }
+                    player.sendActionBar(net.kyori.adventure.text.Component
+                        .text("${player.name} mined a ${block.type.name} and received 16 ${drops.first().type.name}!")
+                        .color(NamedTextColor.GREEN)
+                        .decorate(TextDecoration.BOLD)
+                    )
+                    player.spawnParticle(org.bukkit.Particle.BLOCK, block.location.add(0.5, 0.5, 0.5), 10, 0.3, 0.3, 0.3, 0.1, block.blockData) // Particle effect
+                    block.type = org.bukkit.Material.AIR // Simulates block break
+                }
+            }
+        }
+    }
 }
