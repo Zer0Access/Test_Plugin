@@ -234,10 +234,6 @@ class TestPlugin : JavaPlugin(), Listener {
         val now = System.currentTimeMillis()
         if (now < cooldown) {
             event.isDropItems = true // Ensures normal drops occur if on cooldown
-            player.sendActionBar(net.kyori.adventure.text.Component
-                .text("You must wait before using the ability again!")
-                .color(NamedTextColor.DARK_RED)
-                .decorate(TextDecoration.BOLD))
             return
         }
         if (player.inventory.itemInMainHand.type == org.bukkit.Material.NETHERITE_PICKAXE &&
@@ -251,19 +247,20 @@ class TestPlugin : JavaPlugin(), Listener {
         ) {
             player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 5000))
             val drops = block.getDrops(player.inventory.itemInMainHand)
-            if (drops.isNotEmpty()) {
-                drops.forEach { drop ->
-                    val dropA = drop.clone()
-                    dropA.amount = 16
-                    block.location.world?.dropItemNaturally(block.location.add(0.5, 0.5, 0.5), dropA)
-                }
-                event.isDropItems = false // Prevents normal drops
-                player.sendActionBar(net.kyori.adventure.text.Component
-                    .text("${player.name} mined a ${block.type.name} and received 16 ${drops.first().type.name}!")
-                    .color(NamedTextColor.GREEN)
-                    .decorate(TextDecoration.BOLD))
-                if (player.gameMode.name != "CREATIVE") {
-                    player.damageItemStack(player.inventory.itemInMainHand, 100) // Damages the pickaxe by 100 durability
+            if (player.gameMode.name != "CREATIVE") {
+                player.damageItemStack(player.inventory.itemInMainHand, 100) // Damages the pickaxe by 100 durability
+                if (drops.isNotEmpty()) {
+                    drops.forEach { drop ->
+                        val dropA = drop.clone()
+                        dropA.amount = 15 // Sets the amount of the drop to 16 (1 original + 15 extra)
+                        block.location.world?.dropItemNaturally(block.location.add(0.5, 0.5, 0.5), dropA)
+                    }
+                    event.isDropItems = true // Ensures normal drops do not occur
+                    player.sendActionBar(net.kyori.adventure.text.Component
+                        .text("${player.name} mined a ${block.type.name} and received 16 ${drops.first().type.name}!")
+                        .color(NamedTextColor.GREEN)
+                        .decorate(TextDecoration.BOLD)
+                    )
                 }
             }
         }
