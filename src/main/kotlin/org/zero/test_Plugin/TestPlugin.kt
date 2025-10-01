@@ -245,7 +245,7 @@ class TestPlugin : JavaPlugin(), Listener {
                     .build()
             } == true
         ) {
-            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 5000))
+            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 60_000))
             val drops = block.getDrops(player.inventory.itemInMainHand)
             if (player.gameMode.name != "CREATIVE") {
                 player.damageItemStack(player.inventory.itemInMainHand, 100) // Damages the pickaxe by 100 durability
