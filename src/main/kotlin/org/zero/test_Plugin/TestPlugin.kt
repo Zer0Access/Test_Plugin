@@ -172,6 +172,8 @@ class TestPlugin : JavaPlugin(), Listener {
             val v: Vector = player.location.direction.multiply(1.25) // Boosts player in the direction they are looking
             player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f)
             player.velocity = v
+            val world = player.world
+            world.spawnParticle(org.bukkit.Particle.GUST, player.location.add(0.0, 1.0, 0.0), 5, 0.5, 0.5, 0.5, 0.1) // Particle effect
         }
     }
 
