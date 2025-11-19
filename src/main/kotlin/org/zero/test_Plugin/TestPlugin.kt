@@ -167,7 +167,7 @@ class TestPlugin : JavaPlugin(), Listener {
                     .decorate(TextDecoration.BOLD))
                 return
             }
-            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 500))
+            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 1000))
             val player = event.player
             val v: Vector = player.location.direction.multiply(1.25) // Boosts player in the direction they are looking
             player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f)
