@@ -308,7 +308,7 @@ class TestPlugin : JavaPlugin(), Listener {
                         .color(NamedTextColor.GREEN)
                         .decorate(TextDecoration.BOLD)
                     )
-                    player.spawnParticle(org.bukkit.Particle.BLOCK, block.location.add(0.5, 0.5, 0.5), 10, 0.3, 0.3, 0.3, 0.1, block.blockData) // Particle effect
+                    player.spawnParticle(org.bukkit.Particle.BLOCK, block.location.add(0.5, 0.5, 0.5), 50, 0.3, 0.3, 0.3, 0.1, block.blockData) // Particle effect
                     block.type = org.bukkit.Material.AIR // Simulates block break
                 }
             }
