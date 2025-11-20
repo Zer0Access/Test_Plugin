@@ -310,6 +310,29 @@ class TestPlugin : JavaPlugin(), Listener {
                     )
                     player.spawnParticle(org.bukkit.Particle.BLOCK, block.location.add(0.5, 0.5, 0.5), 50, 0.3, 0.3, 0.3, 0.1, block.blockData) // Particle effect
                     block.type = org.bukkit.Material.AIR // Simulates block break
+                    player.damageItemStack(player.inventory.itemInMainHand, 50)
+                    player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + minInterval))
+                    val bossBar = Bukkit.createBossBar("Pickaxe Cooldown", BarColor.RED, BarStyle.SEGMENTED_10)
+                    bossBar.addPlayer(player)
+                    thread(start = true) {
+                        val totalDuration = minInterval // Total duration in milliseconds
+                        val updateInterval = 1_000L // Update interval in milliseconds
+                        var elapsed = 0L
+                        while (elapsed < totalDuration) {
+                            Thread.sleep(updateInterval)
+                            elapsed += updateInterval
+                            // compute a Double progress between 0.0 and 1.0 (1.0 -> full, 0.0 -> finished)
+                            val progress = 1.0 - elapsed.toDouble() / totalDuration.toDouble()
+                            bossBar.progress = progress.coerceIn(0.0, 1.0)
+
+                            if (elapsed >= totalDuration) {
+                                thread(start = true) {
+                                    Thread.sleep(500) // Wait a second before removing the boss bar
+                                    bossBar.removeAll()
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
