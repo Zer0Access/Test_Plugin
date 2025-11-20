@@ -1,15 +1,13 @@
 package org.zero.test_Plugin
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
-import io.papermc.paper.datacomponent.item.DyedItemColor
-import io.papermc.paper.registry.keys.ItemTypeKeys
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
+import org.bukkit.Bukkit
 import org.bukkit.Color
-import org.bukkit.Server
 import org.bukkit.Sound
-import org.bukkit.attribute.Attribute
-import org.bukkit.attribute.AttributeModifier
+import org.bukkit.boss.BarColor
+import org.bukkit.boss.BarStyle
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -18,12 +16,7 @@ import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerMoveEvent
-import org.bukkit.inventory.CraftingInventory
-import org.bukkit.inventory.CraftingRecipe
 import org.bukkit.inventory.EquipmentSlot
-import org.bukkit.inventory.ItemType
-import org.bukkit.inventory.Recipe
 import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.util.Vector
@@ -214,7 +207,7 @@ class TestPlugin : JavaPlugin(), Listener {
                         .build()
                 ) {
                     player.walkSpeed = 0.15f // Increases walk speed when wearing the boots
-                    player.maxHealth = 40.0 // Sets max health to 3 hearts
+                    player.maxHealth = 40.0 // Sets max health to 20 hearts
                     player.sendMessage("Slowed")
                     return
                 }
@@ -275,13 +268,7 @@ class TestPlugin : JavaPlugin(), Listener {
         val cooldownKey = "PickaxeCooldownTest"
         val cooldown = player.getMetadata(cooldownKey).firstOrNull()?.asLong() ?: 0L
         val now = System.currentTimeMillis()
-        if (now < cooldown) {
-            player.sendActionBar(net.kyori.adventure.text.Component
-                .text("Ability not for Creative")
-                .color(NamedTextColor.DARK_RED)
-                .decorate(TextDecoration.BOLD))
-            return
-        }
+
         if ((event.action.name == "RIGHT_CLICK_BLOCK") &&
             player.inventory.itemInMainHand.type == org.bukkit.Material.NETHERITE_PICKAXE &&
             player.inventory.itemInMainHand.itemMeta?.let { meta ->
@@ -292,21 +279,24 @@ class TestPlugin : JavaPlugin(), Listener {
                     .build()
             } == true
         ) {
-            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 1_000))
+            val minInterval = 10_000L // Cooldown Duration in milliseconds
+            if (now < cooldown && player.gameMode.name != "CREATIVE") {
+                return
+            }
             val drops = block.getDrops(player.inventory.itemInMainHand)
             fun onPickUseAbility(event: BlockBreakEvent) {}
             if (player.gameMode.name != "CREATIVE") {
-                player.damageItemStack(player.inventory.itemInMainHand, 50)
                 if (drops.isNotEmpty()) {
                     drops.forEach { drop ->
                         val dropA = drop.clone()
                         dropA.amount = 16
                         block.location.world?.dropItemNaturally(block.location.add(0.5, 0.5, 0.5), dropA)
                     }
-                    player.sendActionBar(net.kyori.adventure.text.Component
-                        .text("${player.name} mined a ${block.type.name} and received 16 ${drops.first().type.name}!")
-                        .color(NamedTextColor.GREEN)
-                        .decorate(TextDecoration.BOLD)
+                    player.sendActionBar(
+                        net.kyori.adventure.text.Component
+                            .text("Mined ${block.type.name} and received 16 ${drops.first().type.name}!")
+                            .color(NamedTextColor.GREEN)
+                            .decorate(TextDecoration.BOLD)
                     )
                     player.spawnParticle(
                         org.bukkit.Particle.BLOCK,
@@ -321,11 +311,11 @@ class TestPlugin : JavaPlugin(), Listener {
                     block.type = org.bukkit.Material.AIR // Simulates block break
                     player.damageItemStack(player.inventory.itemInMainHand, 50)
                     player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + minInterval))
-                    val bossBar = Bukkit.createBossBar("Pickaxe Cooldown", BarColor.RED, BarStyle.SEGMENTED_10)
+                    val bossBar = Bukkit.createBossBar("Pickaxe Cooldown", BarColor.RED, BarStyle.SOLID)
                     bossBar.addPlayer(player)
                     thread(start = true) {
                         val totalDuration = minInterval // Total duration in milliseconds
-                        val updateInterval = 1_000L // Update interval in milliseconds
+                        val updateInterval = 10L // Update interval in milliseconds
                         var elapsed = 0L
                         while (elapsed < totalDuration) {
                             Thread.sleep(updateInterval)
