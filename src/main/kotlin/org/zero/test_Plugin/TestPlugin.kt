@@ -1,6 +1,7 @@
 package org.zero.test_Plugin
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
+import io.papermc.paper.dialog.Dialog
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Bukkit
@@ -144,6 +145,7 @@ class TestPlugin : JavaPlugin(), Listener {
         val cooldownKey = "SOTWCooldown"
         val cooldown = player.getMetadata(cooldownKey).firstOrNull()?.asLong()?: 0L
         val now = System.currentTimeMillis()
+        val minInterval = 1_000L // Cooldown Duration in milliseconds
         if ((event.action.name == "RIGHT_CLICK_AIR" || event.action.name == "RIGHT_CLICK_BLOCK") && event.player.inventory.itemInMainHand.type == org.bukkit.Material.ECHO_SHARD &&
             event.item?.itemMeta?.let { meta ->
                 meta.hasItemName() && meta.itemName() == net.kyori.adventure.text.Component.text()
@@ -160,13 +162,31 @@ class TestPlugin : JavaPlugin(), Listener {
                     .decorate(TextDecoration.BOLD))
                 return
             }
-            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + 1000))
+            player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + minInterval))
             val player = event.player
             val v: Vector = player.location.direction.multiply(1.25) // Boosts player in the direction they are looking
             player.playSound(player.location, Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f)
             player.velocity = v
             val world = player.world
             world.spawnParticle(org.bukkit.Particle.GUST, player.location.add(0.0, 1.0, 0.0), 5, 0.5, 0.5, 0.5, 0.1) // Particle effect
+            val bossBar = Bukkit.createBossBar("Dash Cooldown", BarColor.RED, BarStyle.SOLID)
+            bossBar.addPlayer(player)
+            thread(start = true) {
+                val totalDuration = minInterval // Total duration in milliseconds
+                val updateInterval = 10L // Update interval in milliseconds
+                var elapsed = 0L
+                while (elapsed < totalDuration) {
+                    Thread.sleep(updateInterval)
+                    elapsed += updateInterval
+                    // compute a Double progress between 0.0 and 1.0 (1.0 -> full, 0.0 -> finished)
+                    val progress = 1.0 - elapsed.toDouble() / totalDuration.toDouble()
+                    bossBar.progress = progress.coerceIn(0.0, 1.0)
+
+                    if (elapsed >= totalDuration && bossBar.title == "Dash Cooldown") {
+                        bossBar.removeAll()
+                    }
+                }
+            }
         }
     }
 
@@ -311,11 +331,11 @@ class TestPlugin : JavaPlugin(), Listener {
                     block.type = org.bukkit.Material.AIR // Simulates block break
                     player.damageItemStack(player.inventory.itemInMainHand, 50)
                     player.setMetadata(cooldownKey, org.bukkit.metadata.FixedMetadataValue(this, now + minInterval))
-                    val bossBar = Bukkit.createBossBar("Pickaxe Cooldown", BarColor.RED, BarStyle.SOLID)
+                    val bossBar = Bukkit.createBossBar("Pickaxe Cooldown", BarColor.RED, BarStyle.SEGMENTED_20)
                     bossBar.addPlayer(player)
                     thread(start = true) {
                         val totalDuration = minInterval // Total duration in milliseconds
-                        val updateInterval = 10L // Update interval in milliseconds
+                        val updateInterval = 500L // Update interval in milliseconds
                         var elapsed = 0L
                         while (elapsed < totalDuration) {
                             Thread.sleep(updateInterval)
@@ -324,11 +344,9 @@ class TestPlugin : JavaPlugin(), Listener {
                             val progress = 1.0 - elapsed.toDouble() / totalDuration.toDouble()
                             bossBar.progress = progress.coerceIn(0.0, 1.0)
 
-                            if (elapsed >= totalDuration) {
-                                thread(start = true) {
-                                    Thread.sleep(500) // Wait a second before removing the boss bar
-                                    bossBar.removeAll()
-                                }
+                            if (elapsed >= totalDuration && bossBar.title == "Pickaxe Cooldown") {
+                                Thread.sleep(500L) // Small delay to ensure bar shows full before removal
+                                bossBar.removeAll()
                             }
                         }
                     }
